@@ -1,7 +1,6 @@
 ﻿using Moq;
 using Prism.Events;
 using Prism.Ioc;
-using Prism.Logging;
 using Prism.Modularity;
 using Prism.Regions;
 using Prism.Regions.Behaviors;
@@ -193,7 +192,6 @@ namespace Prism.Wpf.Tests
         {
             bootstrapper.MockContainer.Verify(x => x.RegisterInstance(typeof(IModuleCatalog), It.IsAny<IModuleCatalog>()), Times.Once);
 
-            bootstrapper.MockContainer.Verify(x => x.RegisterSingleton(typeof(ILoggerFacade), It.IsAny<Type>()), Times.Once);
             bootstrapper.MockContainer.Verify(x => x.RegisterSingleton(typeof(IDialogService), typeof(DialogService)), Times.Once);
             bootstrapper.MockContainer.Verify(x => x.RegisterSingleton(typeof(IModuleInitializer), typeof(ModuleInitializer)), Times.Once);
             bootstrapper.MockContainer.Verify(x => x.RegisterSingleton(typeof(IModuleManager), typeof(ModuleManager)), Times.Once);
@@ -269,13 +267,13 @@ namespace Prism.Wpf.Tests
             return moduleCatalog;
         }
 
-        protected override Window CreateShell()
+        protected override DependencyObject CreateShell()
         {
             CreateShellWasCalled = true;
             return null;
         }
 
-        protected override void InitializeShell(Window shell)
+        protected override void InitializeShell(DependencyObject shell)
         {
             InitializeShellWasCalled = false;
         }
@@ -286,12 +284,9 @@ namespace Prism.Wpf.Tests
 
             base.RegisterRequiredTypes(containerRegistry);
 
-            var logger = new TextLogger();
-            MockContainer.Setup(x => x.Resolve(typeof(ILoggerFacade))).Returns(logger);
-
-            var moduleInitializer = new ModuleInitializer(MockContainer.Object, logger);
+            var moduleInitializer = new ModuleInitializer(MockContainer.Object);
             MockContainer.Setup(x => x.Resolve(typeof(IModuleInitializer))).Returns(moduleInitializer);
-            MockContainer.Setup(x => x.Resolve(typeof(IModuleManager))).Returns(new ModuleManager(moduleInitializer, DefaultModuleCatalog, logger));
+            MockContainer.Setup(x => x.Resolve(typeof(IModuleManager))).Returns(new ModuleManager(moduleInitializer, DefaultModuleCatalog));
             MockContainer.Setup(x => x.Resolve(typeof(IRegionBehaviorFactory))).Returns(new RegionBehaviorFactory(MockContainer.Object));
 
             var regionBehaviorFactory = new RegionBehaviorFactory(MockContainer.Object);

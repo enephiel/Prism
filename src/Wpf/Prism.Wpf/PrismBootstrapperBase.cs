@@ -1,4 +1,5 @@
-﻿using Prism.Ioc;
+﻿using Prism.Common;
+using Prism.Ioc;
 using Prism.Modularity;
 using Prism.Regions;
 using System;
@@ -27,7 +28,7 @@ namespace Prism
         /// Gets the shell user interface
         /// </summary>
         /// <value>The shell user interface.</value>
-        protected Window Shell { get; set; }
+        protected DependencyObject Shell { get; set; }
 
         /// <summary>
         /// Runs the bootstrapper process.
@@ -72,6 +73,7 @@ namespace Prism
             var shell = CreateShell();
             if (shell != null)
             {
+                MvvmHelpers.AutowireViewModel(shell);
                 RegionManager.SetRegionManager(shell, _containerExtension.Resolve<IRegionManager>());
                 RegionManager.UpdateRegions();
                 InitializeShell(shell);
@@ -103,6 +105,9 @@ namespace Prism
         /// <param name="containerRegistry"></param>
         protected virtual void RegisterRequiredTypes(IContainerRegistry containerRegistry)
         {
+            if (_moduleCatalog == null)
+                throw new InvalidOperationException("IModuleCatalog");
+
             containerRegistry.RegisterRequiredTypes(_moduleCatalog);
         }
 
@@ -143,12 +148,12 @@ namespace Prism
         /// Creates the shell or main window of the application.
         /// </summary>
         /// <returns>The shell of the application.</returns>
-        protected abstract Window CreateShell();
+        protected abstract DependencyObject CreateShell();
 
         /// <summary>
         /// Initializes the shell.
         /// </summary>
-        protected virtual void InitializeShell(Window shell)
+        protected virtual void InitializeShell(DependencyObject shell)
         {
             Shell = shell;
         }
@@ -158,7 +163,8 @@ namespace Prism
         /// </summary>
         protected virtual void OnInitialized()
         {
-            Shell?.Show();
+            if (Shell is Window window)
+                window.Show();
         }
 
         /// <summary>

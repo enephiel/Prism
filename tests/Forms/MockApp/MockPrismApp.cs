@@ -4,7 +4,6 @@ using Prism;
 using Prism.Behaviors;
 using Prism.Common;
 using Prism.Ioc;
-using Prism.Logging;
 using Prism.Modularity;
 using Prism.Navigation;
 
@@ -24,7 +23,7 @@ namespace MockApp
             MockContainer.Setup(x => x.Resolve(typeof(IModuleCatalog)))
                 .Returns(new ModuleCatalog());
             MockContainer.Setup(x => x.Resolve(typeof(INavigationService), NavigationServiceName))
-                .Returns(new PageNavigationService(MockContainer.Object, this, new PageBehaviorFactory(), new EmptyLogger()));
+                .Returns(new PageNavigationService(MockContainer.Object, this, new PageBehaviorFactory()));
             base.Initialize();
         }
 
