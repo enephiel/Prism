@@ -515,7 +515,11 @@ namespace Prism.Navigation
             });
             if (currentPage != null)
             {
-                PageUtilities.DestroyWithModalStack(currentPage, modalStack);
+                //PageUtilities.DestroyWithModalStack(currentPage, modalStack);
+                await Task.Run(() =>
+                {
+                    Device.BeginInvokeOnMainThread(() => PageUtilities.DestroyWithModalStack(currentPage, modalStack));
+                });
             }
         }
 
